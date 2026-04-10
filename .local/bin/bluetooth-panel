@@ -1,0 +1,218 @@
+#!/usr/bin/env python3
+
+import subprocess
+import sys
+from pathlib import Path
+
+from wofi_focus import run_wofi_menu
+
+
+PANEL_STYLE = str(Path.home() / ".config/wofi/panel.css")
+PANEL_ARGS = [
+    "wofi",
+    "--show",
+    "dmenu",
+    "--location",
+    "top_left",
+    "--xoffset",
+    "10",
+    "--yoffset",
+    "8",
+    "--width",
+    "332",
+    "--height",
+    "280",
+    "--style",
+    PANEL_STYLE,
+    "--prompt",
+    "Bluetooth",
+    "--hide-search",
+    "--insensitive",
+    "--gtk-dark",
+    "--cache-file",
+    "/dev/null",
+]
+
+SEPARATOR = "──────── Devices ─────────"
+
+
+def run(cmd, check=True):
+    return subprocess.run(cmd, capture_output=True, text=True, check=check)
+
+
+def notify(message, title="Bluetooth"):
+    subprocess.run(["notify-send", title, message], check=False)
+
+
+def wofi_command(prompt):
+    cmd = PANEL_ARGS[:]
+    cmd[16] = prompt
+    return cmd
+
+
+def menu(prompt, lines):
+    if not lines:
+        return None
+    return run_wofi_menu(wofi_command(prompt), "\n".join(lines) + "\n")
+
+
+def bt_show():
+    info = {}
+    proc = run(["bluetoothctl", "show"], check=False)
+    for line in proc.stdout.splitlines():
+        if ":" not in line:
+            continue
+        key, value = line.strip().split(":", 1)
+        info[key.strip()] = value.strip()
+    return info
+
+
+def device_rows(kind=None):
+    cmd = ["bluetoothctl", "devices"]
+    if kind:
+        cmd.append(kind)
+    proc = run(cmd, check=False)
+    rows = []
+    for line in proc.stdout.splitlines():
+        if not line.startswith("Device "):
+            continue
+        _, mac, name = line.split(" ", 2)
+        rows.append((mac, name))
+    return rows
+
+
+def device_index():
+    devices = {mac: {"name": name, "paired": False, "connected": False} for mac, name in device_rows()}
+    for mac, name in device_rows("Paired"):
+        devices.setdefault(mac, {"name": name, "paired": False, "connected": False})
+        devices[mac]["name"] = name
+        devices[mac]["paired"] = True
+    for mac, name in device_rows("Connected"):
+        devices.setdefault(mac, {"name": name, "paired": False, "connected": False})
+        devices[mac]["name"] = name
+        devices[mac]["connected"] = True
+    return devices
+
+
+def device_info(mac):
+    proc = run(["bluetoothctl", "info", mac], check=False)
+    info = {}
+    for line in proc.stdout.splitlines():
+        text = line.strip()
+        if ":" not in text:
+            continue
+        key, value = text.split(":", 1)
+        info[key.strip()] = value.strip()
+    return info
+
+
+def format_device_entry(mac, data):
+    state = "Connected" if data["connected"] else "Paired" if data["paired"] else "Available"
+    icon = "󰂱" if data["connected"] else "󰂯"
+    return {
+        "label": f"{icon}  {data['name']}   {state}",
+        "mac": mac,
+        "name": data["name"],
+    }
+
+
+def scan_for_devices():
+    proc = run(["bluetoothctl", "--timeout", "8", "scan", "on"], check=False)
+    if proc.returncode != 0:
+        notify((proc.stderr or proc.stdout).strip() or "Scan failed", "Bluetooth Error")
+        return
+    notify("Scan finished")
+    subprocess.run([sys.argv[0]], check=False)
+
+
+def device_actions(mac, name):
+    info = device_info(mac)
+    actions = []
+    if info.get("Connected") == "yes":
+        actions.append("󰂲  Disconnect")
+    else:
+        actions.append("󰂯  Connect")
+    if info.get("Paired") != "yes":
+        actions.append("󰌋  Pair")
+    if info.get("Trusted") == "yes":
+        actions.append("󰞋  Untrust")
+    else:
+        actions.append("󰞉  Trust")
+    if info.get("Paired") == "yes":
+        actions.append("󰆴  Remove device")
+    actions.append("󰁍  Back")
+
+    choice = menu(name, actions)
+    if not choice or choice == "󰁍  Back":
+        return
+
+    if choice == "󰂯  Connect":
+        proc = run(["bluetoothctl", "connect", mac], check=False)
+    elif choice == "󰂲  Disconnect":
+        proc = run(["bluetoothctl", "disconnect", mac], check=False)
+    elif choice == "󰌋  Pair":
+        proc = run(["bluetoothctl", "pair", mac], check=False)
+    elif choice == "󰞉  Trust":
+        proc = run(["bluetoothctl", "trust", mac], check=False)
+    elif choice == "󰞋  Untrust":
+        proc = run(["bluetoothctl", "untrust", mac], check=False)
+    elif choice == "󰆴  Remove device":
+        proc = run(["bluetoothctl", "remove", mac], check=False)
+    else:
+        return
+
+    if proc.returncode == 0:
+        notify(f"{choice.split('  ', 1)[1]}: {name}")
+    else:
+        notify((proc.stderr or proc.stdout).strip() or f"{choice} failed", "Bluetooth Error")
+
+
+def main():
+    info = bt_show()
+    powered = info.get("Powered") == "yes"
+    lines = []
+    devices = []
+
+    if powered:
+        lines.append("󰑓  Scan for devices")
+        lines.append("󰂲  Turn Bluetooth off")
+        lines.append(SEPARATOR)
+        device_map = device_index()
+        for mac, data in sorted(
+            device_map.items(),
+            key=lambda item: (not item[1]["connected"], not item[1]["paired"], item[1]["name"].lower()),
+        ):
+            entry = format_device_entry(mac, data)
+            devices.append(entry)
+            lines.append(entry["label"])
+    else:
+        lines.append("󰂯  Turn Bluetooth on")
+
+    choice = menu("Bluetooth", lines)
+    if not choice:
+        return
+
+    if choice == "󰂯  Turn Bluetooth on":
+        run(["bluetoothctl", "power", "on"], check=False)
+        notify("Bluetooth enabled")
+        return
+    if choice == "󰂲  Turn Bluetooth off":
+        run(["bluetoothctl", "power", "off"], check=False)
+        notify("Bluetooth disabled")
+        return
+    if choice == "󰑓  Scan for devices":
+        scan_for_devices()
+        return
+    if choice == SEPARATOR:
+        return
+
+    for entry in devices:
+        if entry["label"] == choice:
+            device_actions(entry["mac"], entry["name"])
+            return
+
+    notify(f"Unknown selection: {choice}", "Bluetooth Error")
+
+
+if __name__ == "__main__":
+    main()

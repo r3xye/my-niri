@@ -1,0 +1,174 @@
+// Waybar config
+
+{
+    "layer": "top",
+    "position": "left",
+    "width": 56,
+    "exclusive": true,
+    "passthrough": false,
+    "spacing": 0,
+    "margin": "0",
+
+    "modules-left": [
+        "custom/arch",
+        "network",
+        "bluetooth",
+        "backlight"
+    ],
+    "modules-center": [
+        "custom/pupamupa-top",
+        "niri/workspaces",
+        "custom/ws-more",
+        "custom/pupamupa-bottom"
+    ],
+    "modules-right": [
+        "custom/media",
+        "clock",
+        "battery",
+        "pulseaudio",
+        "keyboard-state"
+    ],
+
+    // Arch
+    "custom/arch": {
+        "format": "",
+        "tooltip-format": "Arch Linux",
+        "on-click": "rofi -show drun"
+    },
+
+    // Workspaces
+    "niri/workspaces": {
+        "format": "{icon}",
+        "format-icons": {
+            "1": "I",
+            "2": "II",
+            "3": "III",
+            "4": "IV",
+            "5": "V",
+            "6": "VI",
+            "7": "VII",
+            "8": "VIII",
+            "9": "IX",
+            "default": "•"
+        },
+        "on-click": "activate",
+        "on-scroll-up": "niri msg action focus-workspace-up",
+        "on-scroll-down": "niri msg action focus-workspace-down",
+        "all-outputs": false
+    },
+
+    // Top label
+    "custom/pupamupa-top": {
+        "format": "A\nP\nU\nM\nA\nP\nU\nP",
+        "tooltip": false
+    },
+
+    // Down arrow
+    "custom/ws-more": {
+        "format": "↓",
+        "tooltip": false,
+        "on-click": "niri msg action focus-workspace-down",
+        "on-scroll-down": "niri msg action focus-workspace-down",
+        "on-scroll-up": "niri msg action focus-workspace-up"
+    },
+
+    // Bottom label
+    "custom/pupamupa-bottom": {
+        "format": "P\nU\nP\nA\nM\nU\nP\nA",
+        "tooltip": false
+    },
+
+    // Wi-Fi
+    "network": {
+        "interface": "wl*",
+        "format-wifi": "{icon}",
+        "format-icons": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"],
+        "format-ethernet": "󰈀",
+        "format-disconnected": "󰤭",
+        "tooltip-format-wifi": "{essid}\n{signalStrength}%  {frequency} GHz\n{ipaddr}\n󰕒 {bandwidthUpBits}  󰇚 {bandwidthDownBits}",
+        "tooltip-format-ethernet": "eth\n{ipaddr}\n󰕒 {bandwidthUpBits}  󰇚 {bandwidthDownBits}",
+        "tooltip-format-disconnected": "disconnected",
+        "interval": 5,
+        "on-click": "/home/r3xye/.local/bin/wifi-panel"
+    },
+
+    // Bluetooth
+    "bluetooth": {
+        "format": "󰂯",
+        "format-disabled": "󰂲",
+        "format-off": "󰂲",
+        "format-no-controller": "",
+        "tooltip-format": "{controller_alias}\n{num_connections} devices",
+        "tooltip-format-connected": "{controller_alias}\n{device_enumerate}",
+        "tooltip-format-enumerate-connected": "{device_alias}",
+        "on-click": "/home/r3xye/.local/bin/bluetooth-panel"
+    },
+
+    // Brightness
+    "backlight": {
+        "device": "nvidia_wmi_ec_backlight",
+        "format": "{icon}",
+        "format-icons": ["󰃞", "󰃟", "󰃠"],
+        "tooltip-format": "{percent}%",
+        "on-scroll-up": "brightnessctl --class=backlight set +5%",
+        "on-scroll-down": "brightnessctl --class=backlight set 5%-"
+    },
+
+    // Media
+    "custom/media": {
+        "format": "{}",
+        "exec": "playerctl metadata --format '󰎈 {{ title }}' 2>/dev/null",
+        "exec-if": "command -v playerctl >/dev/null 2>&1 && playerctl status >/dev/null 2>&1",
+        "return-type": "plain",
+        "interval": 2,
+        "max-length": 12,
+        "escape": true,
+        "on-click": "playerctl play-pause"
+    },
+
+    // Clock
+    "clock": {
+        "format": "{:%H\n%M}",
+        "tooltip-format": "<b>{:%A, %d %B %Y}</b>",
+        "interval": 60
+    },
+
+    // Battery
+    "battery": {
+        "format": "{icon}",
+        "format-charging": "󱐋",
+        "format-plugged": "󰚥",
+        "format-icons": ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
+        "tooltip-format": "{capacity}%  {timeTo}\n{power} W",
+        "states": {
+            "warning": 30,
+            "critical": 15
+        },
+        "interval": 60
+    },
+
+    // Volume
+    "pulseaudio": {
+        "format": "{icon}",
+        "format-muted": "󰖁",
+        "format-icons": {
+            "default": ["󰕿", "󰖀", "󰕾"]
+        },
+        "on-click": "pavucontrol",
+        "on-scroll-up": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+",
+        "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-",
+        "tooltip-format": "{volume}%\n{desc}"
+    },
+
+    // Caps lock
+    "keyboard-state": {
+        "capslock": true,
+        "format": {
+            "capslock": "A"
+        },
+        "format-icons": {
+            "locked": "",
+            "unlocked": ""
+        }
+    }
+}

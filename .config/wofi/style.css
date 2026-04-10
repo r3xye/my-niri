@@ -1,0 +1,50 @@
+window {
+    margin: 0px;
+    padding: 18px;
+    border: 2px solid #504945;
+    border-radius: 16px;
+    background-color: #1d2021;
+    font-family: "JetBrains Mono Nerd Font", "JetBrains Mono", monospace;
+    font-size: 15px;
+}
+
+#outer-box {
+    margin: 0;
+    padding: 0;
+}
+
+#input {
+    margin: 0 0 14px 0;
+    padding: 12px 14px;
+    border: 1px solid #665c54;
+    border-radius: 10px;
+    color: #ebdbb2;
+    background-color: #282828;
+}
+
+#inner-box {
+    margin: 0;
+    padding: 0;
+    spacing: 8px;
+    background-color: transparent;
+}
+
+#entry {
+    padding: 10px 12px;
+    border-radius: 10px;
+    color: #ebdbb2;
+    background-color: transparent;
+}
+
+#entry:selected {
+    color: #1d2021;
+    background-color: #d79921;
+}
+
+#text {
+    margin: 0;
+}
+
+#text:selected {
+    color: #1d2021;
+}

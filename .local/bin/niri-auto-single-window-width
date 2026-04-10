@@ -1,0 +1,131 @@
+#!/usr/bin/env python3
+
+import json
+import os
+import shutil
+import subprocess
+import sys
+import time
+from collections import defaultdict
+
+
+FULL_WIDTH = "100%"
+NORMAL_WIDTH = "50%"
+
+
+def resolve_niri_bin():
+    explicit = os.environ.get("NIRI_BIN")
+    if explicit:
+        return explicit
+
+    # Some setups put a session-launcher wrapper at `niri` in PATH.
+    # Prefer the real IPC client binary when it exists.
+    for candidate in ("/usr/bin/niri", shutil.which("niri")):
+        if candidate and os.path.isfile(candidate) and os.access(candidate, os.X_OK):
+            return candidate
+
+    return "niri"
+
+
+NIRI = resolve_niri_bin()
+
+
+def run_niri_json(*args):
+    result = subprocess.run(
+        [NIRI, "msg", "--json", *args],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return json.loads(result.stdout)
+
+
+def run_niri_action(*args):
+    subprocess.run([NIRI, "msg", "action", *args], check=True)
+
+
+def tiled_windows_by_workspace():
+    windows = run_niri_json("windows")
+    grouped = defaultdict(list)
+
+    for window in windows:
+        if window.get("is_floating"):
+            continue
+
+        workspace_id = window.get("workspace_id")
+        window_id = window.get("id")
+        if workspace_id is None or window_id is None:
+            continue
+
+        grouped[workspace_id].append(window_id)
+
+    return dict(grouped)
+
+
+def apply_workspace_widths(grouped, previous_counts):
+    current_counts = {workspace_id: len(window_ids) for workspace_id, window_ids in grouped.items()}
+    all_workspace_ids = set(previous_counts) | set(current_counts)
+
+    for workspace_id in sorted(all_workspace_ids):
+        prev_count = previous_counts.get(workspace_id, 0)
+        curr_count = current_counts.get(workspace_id, 0)
+
+        if curr_count == prev_count:
+            continue
+
+        window_ids = grouped.get(workspace_id, [])
+        if curr_count == 1:
+            run_niri_action("set-window-width", "--id", str(window_ids[0]), FULL_WIDTH)
+        elif curr_count >= 2 and prev_count < 2:
+            for window_id in window_ids:
+                run_niri_action("set-window-width", "--id", str(window_id), NORMAL_WIDTH)
+
+    return current_counts
+
+
+def main():
+    if "NIRI_SOCKET" not in os.environ:
+        print("NIRI_SOCKET is not set; this script must run inside a niri session.", file=sys.stderr)
+        return 1
+
+    previous_counts = {}
+
+    while True:
+        try:
+            grouped = tiled_windows_by_workspace()
+            previous_counts = apply_workspace_widths(grouped, previous_counts)
+
+            with subprocess.Popen(
+                [NIRI, "msg", "--json", "event-stream"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            ) as proc:
+                assert proc.stdout is not None
+
+                for line in proc.stdout:
+                    line = line.strip()
+                    if not line:
+                        continue
+
+                    try:
+                        event = json.loads(line)
+                    except json.JSONDecodeError:
+                        continue
+
+                    if not isinstance(event, dict):
+                        continue
+
+                    grouped = tiled_windows_by_workspace()
+                    previous_counts = apply_workspace_widths(grouped, previous_counts)
+
+                raise subprocess.CalledProcessError(proc.wait(), proc.args)
+        except KeyboardInterrupt:
+            return 0
+        except Exception as exc:
+            print(f"niri-auto-single-window-width: {exc}", file=sys.stderr)
+            time.sleep(1)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

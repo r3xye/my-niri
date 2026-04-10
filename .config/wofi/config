@@ -1,0 +1,13 @@
+width=540
+height=420
+show=drun
+prompt=
+insensitive=true
+allow_markup=true
+hide_scroll=true
+gtk_dark=true
+normal_window=false
+location=center
+anchor=center
+no_actions=true
+term=kitty

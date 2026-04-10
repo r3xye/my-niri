@@ -1,0 +1,308 @@
+/* ~/.config/waybar/style.css
+   Waybar for niri — Gruvbox dark, vertical left bar
+   ──────────────────────────────────────────────────
+   Эффект PUPAMUPA-кордона реализован через псевдоэлементы
+   ::before / ::after у #workspaces — они рисуют статичную
+   надпись над первым и под последним воркспейсом.           */
+
+/* ── Gruvbox palette ─────────────────────────────────────── */
+@define-color bg       #282828;
+@define-color bg0h     #1d2021;
+@define-color bg1      #3c3836;
+@define-color bg2      #504945;
+@define-color bg3      #665c54;
+@define-color fg       #ebdbb2;
+@define-color fg4      #a89984;
+@define-color gray     #928374;
+@define-color red      #cc241d;
+@define-color green    #98971a;
+@define-color yellow   #d79921;
+@define-color blue     #458588;
+@define-color purple   #b16286;
+@define-color aqua     #689d6a;
+@define-color orange   #d65d0e;
+@define-color red_l    #fb4934;
+@define-color yellow_l #fabd2f;
+@define-color blue_l   #83a598;
+
+/* ── Reset ───────────────────────────────────────────────── */
+* {
+    border:          none;
+    border-radius:   0;
+    font-family:     "JetBrains Mono Nerd Font", "JetBrains Mono", monospace;
+    font-size:       12px;
+    min-height:      0;
+}
+
+/* ── Bar window ──────────────────────────────────────────── */
+window#waybar {
+    background:   @bg;
+    border-right: 1px solid @bg1;
+    color:        @fg4;
+}
+
+/* ── Sections ────────────────────────────────────────────── */
+.modules-left   { padding: 4px 0; }
+.modules-center { padding: 0; }
+.modules-right  { padding: 4px 0; }
+
+/* ── Generic module slot ─────────────────────────────────── */
+#custom-arch,
+#network,
+#bluetooth,
+#backlight,
+#custom-media,
+#clock,
+#battery,
+#pulseaudio,
+#keyboard-state {
+    padding:    6px 0;
+    margin:     2px 6px;
+    min-width:  34px;
+    color:      @fg4;
+}
+
+/* ── Arch logo ───────────────────────────────────────────── */
+#custom-arch {
+    background:    @bg1;
+    border:        1px solid @bg2;
+    border-radius: 8px;
+    color:       #1793d1;
+    font-size:   18px;
+    padding:     10px 0 8px;
+    margin:      2px 6px 8px;
+}
+
+#custom-arch:hover {
+    color:       #5ab0e8;
+}
+
+/* ── Workspaces ──────────────────────────────────────────── */
+/* Обёртка со скруглённым фоном — визуальный блок в центре   */
+#workspaces {
+    background:    @bg1;
+    border:        1px solid @bg2;
+    border-radius: 10px 10px 0 0;
+    margin:        4px 4px;
+    padding:       10px 0 0;
+
+    /* PUPAMUPA через псевдоэлементы                         */
+    /* (работает только если GTK поддерживает content у      */
+    /* виджетов waybar — в большинстве тем не работает,      */
+    /* используй custom/pupamupa вместо этого, см. ниже)     */
+}
+
+#workspaces button {
+    min-width:      36px;
+    min-height:     36px;
+    margin:         4px 5px;
+    border-radius:  7px;
+    font-size:      11px;
+    font-weight:    700;
+    padding:        0;
+    color:          @bg3;
+    background:     transparent;
+}
+
+/* Показываем в баре только первые 9 воркспейсов */
+#workspaces button:nth-child(n+10) {
+    min-width:      0;
+    min-height:     0;
+    margin:         0;
+    padding:        0;
+    border:         0;
+    font-size:      0;
+    opacity:        0;
+    background:     transparent;
+}
+
+#custom-pupamupa-top,
+#custom-pupamupa-bottom {
+    background:      transparent;
+    margin:          2px 0;
+    padding:         0;
+    min-width:       0;
+    min-height:      0;
+    color:           #f2f2f2;
+    font-size:       22px;
+    font-weight:     900;
+    letter-spacing:  5px;
+    text-shadow:     0 0 8px alpha(#ffffff, 0.35);
+}
+
+#custom-pupamupa-top {
+    margin: 12px 0 8px;
+}
+
+#custom-pupamupa-bottom {
+    margin: 8px 0 12px;
+    color:  #d9d9d9;
+}
+
+#custom-ws-more {
+    background:      @bg1;
+    border-left:     1px solid @bg2;
+    border-right:    1px solid @bg2;
+    border-bottom:   1px solid @bg2;
+    border-radius:   0 0 10px 10px;
+    margin:          0 4px 2px;
+    min-width:       36px;
+    min-height:      24px;
+    padding:         0 0 6px;
+    color:           @bg3;
+    font-size:       16px;
+    font-weight:     900;
+    text-shadow:     none;
+}
+
+#custom-ws-more:hover {
+    color:      @yellow;
+    background: @bg2;
+}
+
+/* соседи активного */
+#workspaces button:hover {
+    color:      @fg4;
+    background: @bg1;
+}
+
+/* занятый, но не активный */
+#workspaces button.occupied {
+    color: @fg4;
+    background: @bg1;
+}
+
+/* активный — золотой квадрат, всегда одинаковый */
+#workspaces button.active {
+    background:  @yellow;
+    color:       @bg;
+    font-size:   14px;
+    border-radius: 7px;
+}
+
+/* срочный */
+#workspaces button.urgent {
+    background:  @red;
+    color:       #fbf1c7;
+}
+
+/* ── Wi-Fi ───────────────────────────────────────────────── */
+#network {
+    background:    @bg1;
+    border:        1px solid @bg2;
+    border-radius: 8px 8px 0 0;
+    font-size: 15px;
+    margin-bottom: 0;
+}
+
+#network.wifi        { color: @green; }
+#network.ethernet    { color: @blue; }
+#network.disconnected { color: @bg3; }
+
+/* ── Bluetooth ───────────────────────────────────────────── */
+#bluetooth {
+    background:    @bg1;
+    border-left:   1px solid @bg2;
+    border-right:  1px solid @bg2;
+    font-size: 15px;
+    color:     @blue_l;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+#bluetooth.disabled,
+#bluetooth.off {
+    color: @bg3;
+}
+
+#backlight {
+    background:    @bg1;
+    border-top:    1px solid @bg2;
+    border-left:   1px solid @bg2;
+    border-right:  1px solid @bg2;
+    border-bottom: 1px solid @bg2;
+    border-radius: 0 0 8px 8px;
+    font-size:     15px;
+    color:         @yellow_l;
+    margin-top:    0;
+    margin-bottom: 12px;
+}
+
+/* ── Media ───────────────────────────────────────────────── */
+#custom-media {
+    background:    @bg1;
+    border:        1px solid @bg2;
+    border-radius: 8px;
+    font-size:     10px;
+    color:         @purple;
+    padding:       8px 2px;
+    margin-top:    10px;
+    margin-bottom: 8px;
+}
+
+/* ── Clock ───────────────────────────────────────────────── */
+#clock {
+    background:    @bg1;
+    border:        1px solid @bg2;
+    border-radius: 8px;
+    font-size:   12px;
+    font-weight: 700;
+    color:       @fg4;
+    padding:     10px 0;
+    margin-bottom: 8px;
+}
+
+/* ── Battery ─────────────────────────────────────────────── */
+#battery            {
+    background:    @bg1;
+    border:        1px solid @bg2;
+    border-radius: 8px 8px 0 0;
+    color:         @green;
+    font-size:     15px;
+    margin-bottom: 0;
+}
+#battery.charging   { color: @yellow_l; }
+#battery.plugged    { color: @blue_l; }
+#battery.warning    { color: @orange; }
+#battery.critical   { color: @red_l; }
+
+/* ── Volume ──────────────────────────────────────────────── */
+#pulseaudio           {
+    background:    @bg1;
+    border-left:   1px solid @bg2;
+    border-right:  1px solid @bg2;
+    color:         @fg4;
+    font-size:     15px;
+    margin-top:    0;
+    margin-bottom: 0;
+}
+#pulseaudio.muted     { color: @bg3; }
+
+/* ── Caps Lock ───────────────────────────────────────────── */
+#keyboard-state {
+    background:    @bg1;
+    border:        1px solid @bg2;
+    border-radius: 0 0 8px 8px;
+    font-size:   10px;
+    font-weight: 700;
+    color:       @bg3;
+    margin-top:  0;
+}
+
+#keyboard-state label.locked {
+    color: @red_l;
+}
+
+/* ── Tooltip ─────────────────────────────────────────────── */
+tooltip {
+    background:   @bg1;
+    border:       1px solid @bg2;
+    border-radius: 6px;
+    color:        @fg;
+    font-size:    12px;
+    padding:      6px 10px;
+}
+
+tooltip label {
+    color: @fg;
+}
