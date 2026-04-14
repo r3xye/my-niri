@@ -44,6 +44,7 @@ workspace "9"
 layout {
     gaps 24
     center-focused-column "never"
+    background-color "transparent"
 
     preset-column-widths {
         proportion 0.33333
@@ -76,15 +77,24 @@ layout {
     }
 }
 
+overview {
+    zoom 0.5
+    backdrop-color "#1d2021"
+
+    workspace-shadow {
+        off
+    }
+}
+
 // # Startup
 spawn-at-startup "swaybg" "-i" "/home/r3xye/Pictures/Wallpapers/gruvbox-arch-sunrise.png" "-m" "fill"
 spawn-at-startup "swaync"
 spawn-at-startup "waybar"
 spawn-at-startup "xwayland-satellite"
 spawn-at-startup "/home/r3xye/.local/bin/niri-auto-single-window-width"
-hotkey-overlay {
+//hotkey-overlay {
     // skip-at-startup
-}
+//}
 
 // # Misc
 prefer-no-csd
@@ -133,6 +143,11 @@ window-rule {
 window-rule {
     match app-id=r#"firefox$"# title="^Picture-in-Picture$"
     open-floating true
+}
+
+layer-rule {
+    match namespace="^wallpaper$"
+    place-within-backdrop true
 }
 
 // # Binds
