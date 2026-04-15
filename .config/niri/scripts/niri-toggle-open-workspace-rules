@@ -1,0 +1,73 @@
+#!/usr/bin/env python3
+import os
+import shutil
+import signal
+import subprocess
+from pathlib import Path
+
+
+HOME = Path.home()
+CONFIG = Path(os.environ.get("XDG_CONFIG_HOME", HOME / ".config")) / "niri" / "config.kdl"
+STATE_DIR = Path(os.environ.get("XDG_STATE_HOME", HOME / ".local" / "state")) / "niri"
+STATE_FILE = STATE_DIR / "open-workspace-rules"
+MARKER = "niri-toggle-open-workspace-rules:"
+
+
+def notify(message: str) -> None:
+    if shutil.which("notify-send") is None:
+        return
+
+    subprocess.run(
+        ["notify-send", "niri", message],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        check=False,
+    )
+
+
+def reload_waybar_status() -> None:
+    subprocess.run(
+        ["pkill", "-RTMIN+8", "waybar"],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        check=False,
+    )
+
+
+def enable_rules(lines: list[str]) -> list[str]:
+    prefix = f"// {MARKER} "
+    return [line.replace(prefix, "", 1) if line.startswith(prefix) else line for line in lines]
+
+
+def disable_rules(lines: list[str]) -> list[str]:
+    disabled = []
+    for line in lines:
+        stripped = line.lstrip(" \t")
+        indent = line[: len(line) - len(stripped)]
+        if stripped.startswith('open-on-workspace "'):
+            disabled.append(f"// {MARKER} {indent}{stripped}")
+        else:
+            disabled.append(line)
+    return disabled
+
+
+def main() -> int:
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
+
+    lines = CONFIG.read_text().splitlines(keepends=True)
+
+    if any(line.startswith(f"// {MARKER}") for line in lines):
+        CONFIG.write_text("".join(enable_rules(lines)))
+        STATE_FILE.write_text("enabled\n")
+        notify("App workspace rules enabled")
+    else:
+        CONFIG.write_text("".join(disable_rules(lines)))
+        STATE_FILE.write_text("disabled\n")
+        notify("App workspace rules disabled")
+
+    reload_waybar_status()
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

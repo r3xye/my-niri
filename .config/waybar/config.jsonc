@@ -52,11 +52,11 @@
     },
 
     "custom/workspace-rules": {
-        "exec": "/home/r3xye/.local/bin/niri-open-workspace-rules-status",
+        "exec": "/home/r3xye/.config/niri/scripts/niri-open-workspace-rules-status",
         "return-type": "json",
         "interval": 5,
         "signal": 8,
-        "on-click": "/home/r3xye/.local/bin/niri-toggle-open-workspace-rules"
+        "on-click": "/home/r3xye/.config/niri/scripts/niri-toggle-open-workspace-rules"
     },
 
     "custom/keyboard-layout": {

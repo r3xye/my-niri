@@ -30,7 +30,7 @@ window-rule {
 }
 
 window-rule {
-    match app-id=r#"^(mpv|vlc|spotify|com\.spotify\.Client|obs)$"#
+    match app-id=r#"^(mpv|vlc|spotify|Spotify|spotify-client|com\.spotify\.Client|obs)$"#
     open-on-workspace "media"
 }
 
@@ -48,4 +48,3 @@ layer-rule {
     match namespace="^wallpaper$"
     place-within-backdrop true
 }
-

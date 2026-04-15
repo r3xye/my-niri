@@ -139,7 +139,7 @@ window-rule {
 }
 
 window-rule {
-    match app-id=r#"^(mpv|vlc|spotify|com\.spotify\.Client|obs)$"#
+    match app-id=r#"^(mpv|vlc|spotify|Spotify|spotify-client|com\.spotify\.Client|obs)$"#
     open-on-workspace "media"
 }
 
@@ -157,7 +157,6 @@ layer-rule {
     match namespace="^wallpaper$"
     place-within-backdrop true
 }
-
 // Binds
 binds {
     Mod+Shift+Slash { show-hotkey-overlay; }
@@ -165,13 +164,14 @@ binds {
     // Apps
     Mod+Return hotkey-overlay-title="Terminal: kitty"  { spawn "kitty"; }
     Mod+D      hotkey-overlay-title="Launcher: fuzzel" { spawn "fuzzel"; }
-    Mod+S      hotkey-overlay-title="Steam"            { spawn "steam"; }
-    Mod+T      hotkey-overlay-title="Telegram"         { spawn "Telegram"; }
+    Mod+S      hotkey-overlay-title="Steam"            { spawn "/home/r3xye/.config/niri/scripts/focus-or-spawn" "steam"; }
+    Mod+M      hotkey-overlay-title="Spotify"          { spawn "/home/r3xye/.config/niri/scripts/focus-or-spawn" "spotify"; }
+    Mod+T      hotkey-overlay-title="Telegram"         { spawn "/home/r3xye/.config/niri/scripts/focus-or-spawn" "telegram"; }
     Mod+B      hotkey-overlay-title="Browser"	       { spawn "firefox"; }
-    Mod+Shift+T hotkey-overlay-title="Discord"         { spawn "discord"; }
+    Mod+Shift+T hotkey-overlay-title="Discord"         { spawn "/home/r3xye/.config/niri/scripts/focus-or-spawn" "discord"; }
     Super+Alt+L hotkey-overlay-title="Lock: swaylock"  { spawn "swaylock"; }
     Super+Alt+S allow-when-locked=true hotkey-overlay-title=null { spawn-sh "pkill orca || exec orca"; }
-    Mod+O hotkey-overlay-title="Toggle app workspace rules" { spawn "/home/r3xye/.local/bin/niri-toggle-open-workspace-rules"; }
+    Mod+O hotkey-overlay-title="Toggle app workspace rules" { spawn "/home/r3xye/.config/niri/scripts/niri-toggle-open-workspace-rules"; }
 
     // Volume
     XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.1+ -l 1.0"; }

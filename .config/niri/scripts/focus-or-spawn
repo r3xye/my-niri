@@ -1,0 +1,81 @@
+#!/usr/bin/env python3
+import json
+import re
+import subprocess
+import sys
+import time
+
+
+NIRI = "/usr/bin/niri"
+
+APPS = {
+    "spotify": {
+        "app_id": re.compile(r"^(spotify|Spotify|spotify-client|com\.spotify\.Client)$"),
+        "command": ["spotify"],
+    },
+    "discord": {
+        "app_id": re.compile(r"^(discord|Discord|vesktop|Vesktop|dev\.vencord\.Vesktop)$"),
+        "command": ["discord"],
+    },
+    "telegram": {
+        "app_id": re.compile(r"^(org\.telegram\.desktop|Telegram|TelegramDesktop)$"),
+        "command": ["Telegram"],
+    },
+    "steam": {
+        "app_id": re.compile(r"^(steam|Steam)$"),
+        "command": ["steam"],
+    },
+}
+
+
+def usage() -> int:
+    print(f"usage: {sys.argv[0]} spotify|discord|telegram|steam", file=sys.stderr)
+    return 2
+
+
+def windows() -> list[dict]:
+    result = subprocess.run(
+        [NIRI, "msg", "-j", "windows"],
+        check=True,
+        stdout=subprocess.PIPE,
+        text=True,
+    )
+    return json.loads(result.stdout)
+
+
+def find_window_id(app_id_pattern: re.Pattern[str]) -> int | None:
+    for window in windows():
+        app_id = window.get("app_id") or ""
+        if app_id_pattern.search(app_id):
+            return int(window["id"])
+    return None
+
+
+def focus_window(window_id: int) -> None:
+    subprocess.run([NIRI, "msg", "action", "focus-window", "--id", str(window_id)], check=True)
+
+
+def main() -> int:
+    if len(sys.argv) != 2 or sys.argv[1] not in APPS:
+        return usage()
+
+    app = APPS[sys.argv[1]]
+    window_id = find_window_id(app["app_id"])
+
+    if window_id is None:
+        subprocess.Popen(app["command"])
+
+        for _ in range(50):
+            time.sleep(0.1)
+            window_id = find_window_id(app["app_id"])
+            if window_id is not None:
+                break
+
+    if window_id is not None:
+        focus_window(window_id)
+
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
