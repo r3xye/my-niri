@@ -1,213 +1,282 @@
-/* ~/.config/waybar/style.css
-   Waybar for niri — Gruvbox dark, vertical left bar
-   ──────────────────────────────────────────────────
-   Эффект PUPAMUPA-кордона реализован через псевдоэлементы
-   ::before / ::after у #workspaces — они рисуют статичную
-   надпись над первым и под последним воркспейсом.           */
-
-/* ── Gruvbox palette ─────────────────────────────────────── */
 @define-color bg       #282828;
-@define-color bg0h     #1d2021;
 @define-color bg1      #3c3836;
 @define-color bg2      #504945;
 @define-color bg3      #665c54;
 @define-color fg       #ebdbb2;
+@define-color fg0      #fbf1c7;
 @define-color fg4      #a89984;
 @define-color gray     #928374;
-@define-color red      #cc241d;
-@define-color green    #98971a;
-@define-color yellow   #d79921;
-@define-color blue     #458588;
-@define-color purple   #b16286;
-@define-color aqua     #689d6a;
-@define-color orange   #d65d0e;
-@define-color red_l    #fb4934;
-@define-color yellow_l #fabd2f;
-@define-color blue_l   #83a598;
+@define-color red      #fb4934;
+@define-color green    #b8bb26;
+@define-color yellow   #fabd2f;
+@define-color blue     #83a598;
+@define-color purple   #d3869b;
+@define-color aqua     #8ec07c;
+@define-color orange   #fe8019;
 
-/* ── Reset ───────────────────────────────────────────────── */
 * {
-    border:          none;
-    border-radius:   0;
-    font-family:     "JetBrains Mono Nerd Font", "JetBrains Mono", monospace;
-    font-size:       12px;
-    min-height:      0;
+    border: none;
+    border-radius: 0;
+    font-family: "JetBrainsMono Nerd Font", "JetBrains Mono Nerd Font", "JetBrains Mono", monospace;
+    font-size: 12px;
+    min-height: 0;
 }
 
-/* ── Bar window ──────────────────────────────────────────── */
 window#waybar {
-    background:   @bg;
-    border-right: 1px solid @bg1;
-    color:        @fg4;
+    background: transparent;
+    color: @fg;
 }
 
-/* ── Sections ────────────────────────────────────────────── */
-.modules-left   { padding: 4px 0; }
-.modules-center { padding: 0; }
-.modules-right  { padding: 4px 0; }
+window#waybar > box {
+    background: @bg;
+    border: 1px solid @bg1;
+    border-radius: 8px;
+}
 
-/* ── Generic module slot ─────────────────────────────────── */
-#custom-arch,
+.modules-left,
+.modules-center,
+.modules-right {
+    padding: 5px 0;
+}
+
+.modules-left {
+    padding-top: 0;
+}
+
+.modules-left {
+    background: transparent;
+    border-radius: 0;
+}
+
+#cpu,
+#memory,
+#temperature,
+#disk,
+#battery,
+#custom-workspace-rules,
+#custom-keyboard-layout,
 #network,
 #bluetooth,
+#wireplumber,
 #backlight,
-#custom-media,
-#clock,
-#battery,
-#pulseaudio,
-#keyboard-state {
-    padding:    6px 0;
-    margin:     2px 6px;
-    min-width:  34px;
-    color:      @fg4;
+#clock {
+    margin: 3px 5px;
+    min-width: 34px;
+    min-height: 48px;
+    padding: 0;
+    border-radius: 0;
+    background: transparent;
+    color: @fg4;
+    font-weight: 800;
 }
 
-/* ── Arch logo ───────────────────────────────────────────── */
-#custom-arch {
-    background:    @bg1;
-    border:        1px solid @bg2;
-    border-radius: 8px;
-    color:       #1793d1;
-    font-size:   18px;
-    padding:     10px 0 8px;
-    margin:      2px 6px 8px;
+#cpu label,
+#memory label,
+#temperature label,
+#disk label,
+#battery label,
+#custom-workspace-rules label,
+#custom-keyboard-layout label,
+#network label,
+#bluetooth label,
+#wireplumber label,
+#backlight label,
+#clock label,
+#workspaces button label {
+    min-width: 34px;
+    padding: 0;
+    margin: 0;
 }
 
-#custom-arch:hover {
-    color:       #5ab0e8;
-}
-
-/* ── Workspaces ──────────────────────────────────────────── */
-/* Обёртка со скруглённым фоном — визуальный блок в центре   */
 #workspaces {
-    background:    @bg1;
-    border:        1px solid @bg2;
-    border-radius: 10px 10px 0 0;
-    margin:        4px 4px;
-    padding:       10px 0 0;
-
-    /* PUPAMUPA через псевдоэлементы                         */
-    /* (работает только если GTK поддерживает content у      */
-    /* виджетов waybar — в большинстве тем не работает,      */
-    /* используй custom/pupamupa вместо этого, см. ниже)     */
+    margin: 0;
+    padding: 0;
+    border-radius: 7px 7px 0 0;
+    background: @bg1;
 }
 
 #workspaces button {
-    min-width:      36px;
-    min-height:     36px;
-    margin:         4px 5px;
-    border-radius:  7px;
-    font-size:      11px;
-    font-weight:    700;
-    padding:        0;
-    color:          @bg3;
-    background:     transparent;
+    min-width: 44px;
+    min-height: 38px;
+    margin: 0;
+    padding: 0;
+    border-bottom: none;
+    border-radius: 0;
+    color: @fg4;
+    background: transparent;
+    font-size: 19px;
+    font-weight: 800;
 }
 
-/* Показываем в баре только первые 9 воркспейсов */
-#workspaces button:nth-child(n+10) {
-    min-width:      0;
-    min-height:     0;
-    margin:         0;
-    padding:        0;
-    border:         0;
-    font-size:      0;
-    opacity:        0;
-    background:     transparent;
+#workspaces button:first-child {
+    border-radius: 7px 7px 0 0;
 }
 
-#custom-pupamupa-top,
-#custom-pupamupa-bottom {
-    background:      transparent;
-    margin:          2px 0;
-    padding:         0;
-    min-width:       0;
-    min-height:      0;
-    color:           #f2f2f2;
-    font-size:       22px;
-    font-weight:     900;
-    letter-spacing:  5px;
-    text-shadow:     0 0 8px alpha(#ffffff, 0.35);
+#workspaces button:last-child {
+    border-bottom: none;
+    border-radius: 0;
 }
 
-#custom-pupamupa-top {
-    margin: 12px 0 8px;
+#workspaces button:nth-child(1) {
+    color: @orange;
 }
 
-#custom-pupamupa-bottom {
-    margin: 8px 0 12px;
-    color:  #d9d9d9;
+#workspaces button:nth-child(2) {
+    color: @blue;
 }
 
-#custom-ws-more {
-    background:      @bg1;
-    border-left:     1px solid @bg2;
-    border-right:    1px solid @bg2;
-    border-bottom:   1px solid @bg2;
-    border-radius:   0 0 10px 10px;
-    margin:          0 4px 2px;
-    min-width:       36px;
-    min-height:      24px;
-    padding:         0 0 6px;
-    color:           @bg3;
-    font-size:       16px;
-    font-weight:     900;
-    text-shadow:     none;
+#workspaces button:nth-child(3) {
+    color: @aqua;
 }
 
-#custom-ws-more:hover {
-    color:      @yellow;
+#workspaces button:nth-child(4) {
+    color: @purple;
+}
+
+#workspaces button:nth-child(5) {
+    color: @green;
+}
+
+#workspaces button:nth-child(6) {
+    color: @yellow;
+}
+
+#workspaces button:nth-child(7) {
+    color: @red;
+}
+
+#workspaces button:nth-child(8) {
+    color: @gray;
+}
+
+#workspaces button:nth-child(9) {
+    color: @fg0;
+}
+
+#custom-workspace-separator {
+    min-width: 44px;
+    min-height: 24px;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(to bottom, @bg1 0%, @bg 100%);
+    color: transparent;
+    font-size: 1px;
+}
+
+#custom-workspace-separator label {
+    min-width: 44px;
+    min-height: 24px;
+    margin: 0;
+    padding: 0;
+}
+
+#custom-workspace-rules {
+    min-height: 34px;
+    color: @green;
+    font-size: 16px;
+}
+
+#custom-workspace-rules.disabled {
+    color: @yellow;
+}
+
+#custom-keyboard-layout {
+    min-height: 34px;
+    margin-bottom: -5px;
+    color: @blue;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+#custom-keyboard-layout.ru {
+    color: @red;
+}
+
+#custom-keyboard-layout.unknown {
+    color: @bg3;
+}
+
+#workspaces button:hover {
+    color: @fg0;
     background: @bg2;
 }
 
-/* соседи активного */
-#workspaces button:hover {
-    color:      @fg4;
-    background: @bg1;
-}
-
-/* занятый, но не активный */
 #workspaces button.occupied {
-    color: @fg4;
-    background: @bg1;
+    background: transparent;
 }
 
-/* активный — золотой квадрат, всегда одинаковый */
 #workspaces button.active {
-    background:  @yellow;
-    color:       @bg;
-    font-size:   14px;
-    border-radius: 7px;
+    background: @bg2;
 }
 
-/* срочный */
 #workspaces button.urgent {
-    background:  @red;
-    color:       #fbf1c7;
+    color: @red;
+    background: transparent;
 }
 
-/* ── Wi-Fi ───────────────────────────────────────────────── */
-#network {
-    background:    @bg1;
-    border:        1px solid @bg2;
-    border-radius: 8px 8px 0 0;
-    font-size: 15px;
-    margin-bottom: 0;
+#cpu {
+    color: @orange;
 }
 
-#network.wifi        { color: @green; }
-#network.ethernet    { color: @blue; }
-#network.disconnected { color: @bg3; }
+#memory {
+    color: @purple;
+}
 
-/* ── Bluetooth ───────────────────────────────────────────── */
+#temperature {
+    color: @yellow;
+}
+
+#temperature.critical {
+    color: @red;
+}
+
+#disk {
+    color: @fg4;
+}
+
+#battery {
+    color: @green;
+}
+
+#battery.charging {
+    color: @yellow;
+}
+
+#battery.plugged {
+    color: @blue;
+}
+
+#battery.warning {
+    color: @orange;
+}
+
+#battery.critical {
+    color: @red;
+}
+
+#network.wifi {
+    color: @aqua;
+    margin: 3px -8px 3px 14px;
+    min-height: 52px;
+    font-size: 17px;
+}
+
+#network.wifi label {
+    min-width: 14px;
+}
+
+#network.ethernet {
+    color: @blue;
+}
+
+#network.disconnected {
+    color: @bg3;
+}
+
 #bluetooth {
-    background:    @bg1;
-    border-left:   1px solid @bg2;
-    border-right:  1px solid @bg2;
-    font-size: 15px;
-    color:     @blue_l;
-    margin-top: 0;
-    margin-bottom: 0;
+    color: @blue;
+    min-height: 52px;
+    font-size: 17px;
 }
 
 #bluetooth.disabled,
@@ -215,92 +284,33 @@ window#waybar {
     color: @bg3;
 }
 
+#wireplumber {
+    color: @green;
+}
+
+#wireplumber.muted {
+    color: @bg3;
+}
+
 #backlight {
-    background:    @bg1;
-    border-top:    1px solid @bg2;
-    border-left:   1px solid @bg2;
-    border-right:  1px solid @bg2;
-    border-bottom: 1px solid @bg2;
-    border-radius: 0 0 8px 8px;
-    font-size:     15px;
-    color:         @yellow_l;
-    margin-top:    0;
-    margin-bottom: 12px;
+    color: @yellow;
 }
 
-/* ── Media ───────────────────────────────────────────────── */
-#custom-media {
-    background:    @bg1;
-    border:        1px solid @bg2;
-    border-radius: 8px;
-    font-size:     10px;
-    color:         @purple;
-    padding:       8px 2px;
-    margin-top:    10px;
-    margin-bottom: 8px;
-}
-
-/* ── Clock ───────────────────────────────────────────────── */
 #clock {
-    background:    @bg1;
-    border:        1px solid @bg2;
-    border-radius: 8px;
-    font-size:   12px;
-    font-weight: 700;
-    color:       @fg4;
-    padding:     10px 0;
-    margin-bottom: 8px;
-}
-
-/* ── Battery ─────────────────────────────────────────────── */
-#battery            {
-    background:    @bg1;
-    border:        1px solid @bg2;
-    border-radius: 8px 8px 0 0;
-    color:         @green;
-    font-size:     15px;
+    min-height: 48px;
     margin-bottom: 0;
-}
-#battery.charging   { color: @yellow_l; }
-#battery.plugged    { color: @blue_l; }
-#battery.warning    { color: @orange; }
-#battery.critical   { color: @red_l; }
-
-/* ── Volume ──────────────────────────────────────────────── */
-#pulseaudio           {
-    background:    @bg1;
-    border-left:   1px solid @bg2;
-    border-right:  1px solid @bg2;
-    color:         @fg4;
-    font-size:     15px;
-    margin-top:    0;
-    margin-bottom: 0;
-}
-#pulseaudio.muted     { color: @bg3; }
-
-/* ── Caps Lock ───────────────────────────────────────────── */
-#keyboard-state {
-    background:    @bg1;
-    border:        1px solid @bg2;
-    border-radius: 0 0 8px 8px;
-    font-size:   10px;
-    font-weight: 700;
-    color:       @bg3;
-    margin-top:  0;
+    color: @yellow;
+    font-size: 13px;
+    font-weight: 900;
 }
 
-#keyboard-state label.locked {
-    color: @red_l;
-}
-
-/* ── Tooltip ─────────────────────────────────────────────── */
 tooltip {
-    background:   @bg1;
-    border:       1px solid @bg2;
+    background: @bg1;
+    border: 1px solid @bg2;
     border-radius: 6px;
-    color:        @fg;
-    font-size:    12px;
-    padding:      6px 10px;
+    color: @fg;
+    font-size: 12px;
+    padding: 6px 10px;
 }
 
 tooltip label {

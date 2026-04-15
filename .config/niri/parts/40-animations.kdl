@@ -1,5 +1,4 @@
-
-// # Animations
+// Animations
 animations {
     slowdown 1.3
 
@@ -21,3 +20,4 @@ animations {
         curve "ease-out-quad"
     }
 }
+

@@ -1,174 +1,179 @@
-// Waybar config
-
 {
     "layer": "top",
     "position": "left",
-    "width": 56,
+    "width": 46,
     "exclusive": true,
     "passthrough": false,
     "spacing": 0,
-    "margin": "0",
+    "margin": "8 0 8 8",
 
     "modules-left": [
-        "custom/arch",
+        "niri/workspaces",
+        "custom/workspace-separator",
+        "custom/workspace-rules"
+    ],
+
+    "modules-center": [
+        "cpu",
+        "memory",
+        "temperature",
+        "disk",
+        "battery"
+    ],
+
+    "modules-right": [
+        "custom/keyboard-layout",
         "network",
         "bluetooth",
-        "backlight"
-    ],
-    "modules-center": [
-        "custom/pupamupa-top",
-        "niri/workspaces",
-        "custom/ws-more",
-        "custom/pupamupa-bottom"
-    ],
-    "modules-right": [
-        "custom/media",
-        "clock",
-        "battery",
-        "pulseaudio",
-        "keyboard-state"
+        "wireplumber",
+        "backlight",
+        "clock"
     ],
 
-    // Arch
-    "custom/arch": {
-        "format": "",
-        "tooltip-format": "Arch Linux",
-        "on-click": "rofi -show drun"
-    },
-
-    // Workspaces
     "niri/workspaces": {
         "format": "{icon}",
         "format-icons": {
-            "1": "I",
-            "2": "II",
-            "3": "III",
-            "4": "IV",
-            "5": "V",
-            "6": "VI",
-            "7": "VII",
-            "8": "VIII",
-            "9": "IX",
-            "default": "•"
+            "dev": "",
+            "web": "󰖟",
+            "chat": "󰭹",
+            "media": "󰎈",
+            "game": "󰊴",
+            "default": "●"
         },
         "on-click": "activate",
-        "on-scroll-up": "niri msg action focus-workspace-up",
-        "on-scroll-down": "niri msg action focus-workspace-down",
+        "on-scroll-up": "/usr/bin/niri msg action focus-workspace-up",
+        "on-scroll-down": "/usr/bin/niri msg action focus-workspace-down",
         "all-outputs": false
     },
 
-    // Top label
-    "custom/pupamupa-top": {
-        "format": "A\nP\nU\nM\nA\nP\nU\nP",
+    "custom/workspace-separator": {
+        "format": " ",
         "tooltip": false
     },
 
-    // Down arrow
-    "custom/ws-more": {
-        "format": "↓",
-        "tooltip": false,
-        "on-click": "niri msg action focus-workspace-down",
-        "on-scroll-down": "niri msg action focus-workspace-down",
-        "on-scroll-up": "niri msg action focus-workspace-up"
-    },
-
-    // Bottom label
-    "custom/pupamupa-bottom": {
-        "format": "P\nU\nP\nA\nM\nU\nP\nA",
-        "tooltip": false
-    },
-
-    // Wi-Fi
-    "network": {
-        "interface": "wl*",
-        "format-wifi": "{icon}",
-        "format-icons": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"],
-        "format-ethernet": "󰈀",
-        "format-disconnected": "󰤭",
-        "tooltip-format-wifi": "{essid}\n{signalStrength}%  {frequency} GHz\n{ipaddr}\n󰕒 {bandwidthUpBits}  󰇚 {bandwidthDownBits}",
-        "tooltip-format-ethernet": "eth\n{ipaddr}\n󰕒 {bandwidthUpBits}  󰇚 {bandwidthDownBits}",
-        "tooltip-format-disconnected": "disconnected",
+    "custom/workspace-rules": {
+        "exec": "/home/r3xye/.local/bin/niri-open-workspace-rules-status",
+        "return-type": "json",
         "interval": 5,
-        "on-click": "/home/r3xye/.local/bin/wifi-panel"
+        "signal": 8,
+        "on-click": "/home/r3xye/.local/bin/niri-toggle-open-workspace-rules"
     },
 
-    // Bluetooth
-    "bluetooth": {
-        "format": "󰂯",
-        "format-disabled": "󰂲",
-        "format-off": "󰂲",
-        "format-no-controller": "",
-        "tooltip-format": "{controller_alias}\n{num_connections} devices",
-        "tooltip-format-connected": "{controller_alias}\n{device_enumerate}",
-        "tooltip-format-enumerate-connected": "{device_alias}",
-        "on-click": "/home/r3xye/.local/bin/bluetooth-panel"
+    "custom/keyboard-layout": {
+        "exec": "/home/r3xye/.local/bin/niri-keyboard-layout-status",
+        "return-type": "json",
+        "interval": 1,
+        "on-click": "/usr/bin/niri msg action switch-layout next"
     },
 
-    // Brightness
-    "backlight": {
-        "device": "nvidia_wmi_ec_backlight",
-        "format": "{icon}",
-        "format-icons": ["󰃞", "󰃟", "󰃠"],
-        "tooltip-format": "{percent}%",
-        "on-scroll-up": "brightnessctl --class=backlight set +5%",
-        "on-scroll-down": "brightnessctl --class=backlight set 5%-"
+    "cpu": {
+        "format": "\n{usage}",
+        "tooltip-format": "cpu {usage}%",
+        "align": 0.5,
+        "justify": "center",
+        "interval": 2
     },
 
-    // Media
-    "custom/media": {
-        "format": "{}",
-        "exec": "playerctl metadata --format '󰎈 {{ title }}' 2>/dev/null",
-        "exec-if": "command -v playerctl >/dev/null 2>&1 && playerctl status >/dev/null 2>&1",
-        "return-type": "plain",
-        "interval": 2,
-        "max-length": 12,
-        "escape": true,
-        "on-click": "playerctl play-pause"
+    "memory": {
+        "format": "󰍛\n{percentage}",
+        "tooltip-format": "{used:0.1f}G / {total:0.1f}G",
+        "align": 0.5,
+        "justify": "center",
+        "interval": 5
     },
 
-    // Clock
-    "clock": {
-        "format": "{:%H\n%M}",
-        "tooltip-format": "<b>{:%A, %d %B %Y}</b>",
-        "interval": 60
+    "temperature": {
+        "critical-threshold": 80,
+        "format": "{icon}\n{temperatureC}",
+        "format-icons": ["", "", ""],
+        "tooltip-format": "{temperatureC}°C",
+        "align": 0.5,
+        "justify": "center",
+        "interval": 5
     },
 
-    // Battery
+    "disk": {
+        "path": "/",
+        "format": "󰋊\n{percentage_used}",
+        "tooltip-format": "{used} / {total}",
+        "align": 0.5,
+        "justify": "center",
+        "interval": 30
+    },
+
     "battery": {
-        "format": "{icon}",
-        "format-charging": "󱐋",
-        "format-plugged": "󰚥",
+        "format": "{icon}\n{capacity}",
+        "format-charging": "󱐋\n{capacity}",
+        "format-plugged": "󰚥\n{capacity}",
         "format-icons": ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
         "tooltip-format": "{capacity}%  {timeTo}\n{power} W",
         "states": {
             "warning": 30,
             "critical": 15
         },
+        "align": 0.5,
+        "justify": "center",
         "interval": 60
     },
 
-    // Volume
-    "pulseaudio": {
-        "format": "{icon}",
-        "format-muted": "󰖁",
-        "format-icons": {
-            "default": ["󰕿", "󰖀", "󰕾"]
-        },
-        "on-click": "pavucontrol",
-        "on-scroll-up": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+",
-        "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-",
-        "tooltip-format": "{volume}%\n{desc}"
+    "network": {
+        "interface": "wl*",
+        "format-wifi": "\n{icon}",
+        "format-icons": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"],
+        "format-ethernet": "\n󰈀",
+        "format-disconnected": "\n󰤭",
+        "tooltip-format-wifi": "{essid}\n{signalStrength}%  {frequency} GHz\n{ipaddr}\n󰕒 {bandwidthUpBits}  󰇚 {bandwidthDownBits}",
+        "tooltip-format-ethernet": "eth\n{ipaddr}\n󰕒 {bandwidthUpBits}  󰇚 {bandwidthDownBits}",
+        "tooltip-format-disconnected": "disconnected",
+        "align": 0.0,
+        "justify": "left",
+        "interval": 5,
+        "on-click": "/home/r3xye/.local/bin/wifi-panel"
     },
 
-    // Caps lock
-    "keyboard-state": {
-        "capslock": true,
-        "format": {
-            "capslock": "A"
-        },
-        "format-icons": {
-            "locked": "",
-            "unlocked": ""
-        }
+    "bluetooth": {
+        "format": "󰂯",
+        "format-on": "󰂯",
+        "format-connected": "󰂯\n{num_connections}",
+        "format-disabled": "󰂲",
+        "format-off": "󰂲",
+        "format-no-controller": "",
+        "tooltip-format": "{controller_alias}\n{num_connections} devices",
+        "tooltip-format-connected": "{controller_alias}\n{device_enumerate}",
+        "tooltip-format-enumerate-connected": "{device_alias}",
+        "align": 0.5,
+        "justify": "center",
+        "on-click": "/home/r3xye/.local/bin/bluetooth-panel"
+    },
+
+    "wireplumber": {
+        "format": "{icon}\n{volume}",
+        "format-muted": "󰖁",
+        "format-icons": ["󰕿", "󰖀", "󰕾"],
+        "tooltip-format": "{volume}%",
+        "align": 0.5,
+        "justify": "center",
+        "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+        "on-scroll-up": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+",
+        "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"
+    },
+
+    "backlight": {
+        "device": "nvidia_wmi_ec_backlight",
+        "format": "{icon}\n{percent}",
+        "format-icons": ["󰃞", "󰃟", "󰃠"],
+        "tooltip-format": "{percent}%",
+        "align": 0.5,
+        "justify": "center",
+        "on-scroll-up": "brightnessctl --class=backlight set +5%",
+        "on-scroll-down": "brightnessctl --class=backlight set 5%-"
+    },
+
+    "clock": {
+        "format": "{:%H\n%M}",
+        "tooltip-format": "<b>{:%A, %d %B %Y}</b>",
+        "align": 0.5,
+        "justify": "center",
+        "interval": 60
     }
 }

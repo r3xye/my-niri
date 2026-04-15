@@ -1,5 +1,4 @@
-
-// # Layout
+// Layout
 layout {
     gaps 24
     center-focused-column "never"
@@ -44,3 +43,4 @@ overview {
         off
     }
 }
+

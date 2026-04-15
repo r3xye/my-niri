@@ -1,0 +1,24 @@
+#!/bin/sh
+set -eu
+
+json="$(/usr/bin/niri msg -j keyboard-layouts 2>/dev/null || true)"
+
+if [ -z "$json" ]; then
+    printf '{"text":"??","class":"unknown","tooltip":"Keyboard layout unavailable"}\n'
+    exit 0
+fi
+
+printf '%s' "$json" | perl -MJSON::PP -0777 -e '
+    my $data = decode_json(<>);
+    my $name = $data->{names}->[$data->{current_idx}] // "Unknown";
+    my $text =
+        $name =~ /Russian/i ? "RU" :
+        $name =~ /English|US/i ? "EN" :
+        uc(substr($name, 0, 2));
+    my $class = lc($text);
+    print encode_json({
+        text => $text,
+        class => $class,
+        tooltip => "Keyboard layout: $name",
+    }) . "\n";
+'

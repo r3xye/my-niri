@@ -85,6 +85,52 @@ def current_connection():
     return None, None
 
 
+def parse_nmcli_terse_line(line):
+    parts = []
+    current = []
+    escaped = False
+    for char in line:
+        if escaped:
+            current.append(char)
+            escaped = False
+        elif char == "\\":
+            escaped = True
+        elif char == ":":
+            parts.append("".join(current))
+            current = []
+        else:
+            current.append(char)
+    if escaped:
+        current.append("\\")
+    parts.append("".join(current))
+    return parts
+
+
+def saved_wifi_connections():
+    proc = run(["nmcli", "-t", "-f", "NAME,TYPE", "connection", "show"], check=False)
+    connections = []
+    for line in proc.stdout.splitlines():
+        parts = parse_nmcli_terse_line(line)
+        if len(parts) < 2 or parts[1] != "802-11-wireless":
+            continue
+
+        name = parts[0]
+        ssid_proc = run(
+            ["nmcli", "-g", "802-11-wireless.ssid", "connection", "show", name],
+            check=False,
+        )
+        ssid = ssid_proc.stdout.strip() if ssid_proc.returncode == 0 else ""
+        connections.append({"name": name, "ssid": ssid or name})
+    return connections
+
+
+def saved_connection_for_ssid(ssid):
+    for connection in saved_wifi_connections():
+        if connection["ssid"] == ssid or connection["name"] == ssid:
+            return connection["name"]
+    return None
+
+
 def wifi_entries():
     proc = run(
         [
@@ -134,6 +180,17 @@ def wifi_entries():
 def connect_network(entry):
     ssid = entry["ssid"]
     security = entry["security"].lower()
+
+    saved_connection = saved_connection_for_ssid(ssid)
+    if saved_connection:
+        proc = run(["nmcli", "connection", "up", "id", saved_connection], check=False)
+        if proc.returncode == 0:
+            notify(f"Connected to {ssid}")
+            return
+
+        stderr = (proc.stderr or proc.stdout).strip()
+        notify(stderr or f"Failed to connect to {ssid}", "Wi-Fi Error")
+        return
 
     cmd = ["nmcli", "device", "wifi", "connect", ssid]
     if security != "open":

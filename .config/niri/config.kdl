@@ -1,4 +1,4 @@
-// # Input
+// Input
 input {
     keyboard {
         xkb {
@@ -20,27 +20,14 @@ input {
 }
 
 
-// # Outputs
-// Uncomment and adjust for your monitor:
-// output "eDP-1" {
-//     mode "1920x1080@120.030"
-//     scale 2
-//     transform "normal"
-//     position x=0 y=0
-// }
+// Workspaces
+workspace "dev"
+workspace "web"
+workspace "chat"
+workspace "media"
+workspace "game"
 
-// # Named Workspaces
-workspace "1"
-workspace "2"
-workspace "3"
-workspace "4"
-workspace "5"
-workspace "6"
-workspace "7"
-workspace "8"
-workspace "9"
-
-// # Layout
+// Layout
 layout {
     gaps 24
     center-focused-column "never"
@@ -86,22 +73,18 @@ overview {
     }
 }
 
-// # Startup
+// Startup
 spawn-at-startup "swaybg" "-i" "/home/r3xye/Pictures/Wallpapers/gruvbox-arch-sunrise.png" "-m" "fill"
 spawn-at-startup "swaync"
 spawn-at-startup "waybar"
 spawn-at-startup "xwayland-satellite"
 spawn-at-startup "/home/r3xye/.local/bin/niri-auto-single-window-width"
-//hotkey-overlay {
-    // skip-at-startup
-//}
-
-// # Misc
+// Misc
 prefer-no-csd
 
 screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 
-// # Animations
+// Animations
 animations {
     slowdown 1.3
 
@@ -124,7 +107,7 @@ animations {
     }
 }
 
-// # Window Rules
+// Window Rules
 window-rule {
     match is-active=false
     opacity 0.94
@@ -141,6 +124,31 @@ window-rule {
 }
 
 window-rule {
+    match app-id=r#"^(kitty|org\.wezfurlong\.wezterm|Alacritty|foot)$"#
+    open-on-workspace "dev"
+}
+
+window-rule {
+    match app-id=r#"^(firefox|chromium|google-chrome|brave-browser)$"#
+    open-on-workspace "web"
+}
+
+window-rule {
+    match app-id=r#"^(org\.telegram\.desktop|Telegram|discord)$"#
+    open-on-workspace "chat"
+}
+
+window-rule {
+    match app-id=r#"^(mpv|vlc|spotify|com\.spotify\.Client|obs)$"#
+    open-on-workspace "media"
+}
+
+window-rule {
+    match app-id=r#"^(steam|Steam)$"#
+    open-on-workspace "game"
+}
+
+window-rule {
     match app-id=r#"firefox$"# title="^Picture-in-Picture$"
     open-floating true
 }
@@ -150,7 +158,7 @@ layer-rule {
     place-within-backdrop true
 }
 
-// # Binds
+// Binds
 binds {
     Mod+Shift+Slash { show-hotkey-overlay; }
 
@@ -163,6 +171,7 @@ binds {
     Mod+Shift+T hotkey-overlay-title="Discord"         { spawn "discord"; }
     Super+Alt+L hotkey-overlay-title="Lock: swaylock"  { spawn "swaylock"; }
     Super+Alt+S allow-when-locked=true hotkey-overlay-title=null { spawn-sh "pkill orca || exec orca"; }
+    Mod+O hotkey-overlay-title="Toggle app workspace rules" { spawn "/home/r3xye/.local/bin/niri-toggle-open-workspace-rules"; }
 
     // Volume
     XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.1+ -l 1.0"; }
@@ -181,10 +190,9 @@ binds {
     XF86MonBrightnessDown allow-when-locked=true { spawn "brightnessctl" "--class=backlight" "set" "10%-"; }
 
     // Overview
-    Mod+O repeat=false { toggle-overview; }
     Mod+Tab repeat=false { toggle-overview; }
 
-    // Window management
+    // Windows
     Mod+C repeat=false { close-window; }
     Mod+V       { toggle-window-floating; }
     Mod+Shift+V { switch-focus-between-floating-and-tiling; }
@@ -200,7 +208,7 @@ binds {
     Mod+K     { focus-window-up; }
     Mod+L     { focus-column-right; }
 
-    // Move windows
+    // Move Windows
     Mod+Shift+Left  { move-column-left; }
     Mod+Shift+Down  { move-window-down; }
     Mod+Shift+Up    { move-window-up; }
@@ -210,13 +218,13 @@ binds {
     Mod+Shift+K     { move-window-up; }
     Mod+Shift+L     { move-column-right; }
 
-    // Column edges
+    // Columns
     Mod+Home       { focus-column-first; }
     Mod+End        { focus-column-last; }
     Mod+Shift+Home { move-column-to-first; }
     Mod+Shift+End  { move-column-to-last; }
 
-    // Monitor focus
+    // Monitors
     Mod+Ctrl+Left  { focus-monitor-left; }
     Mod+Ctrl+Down  { focus-monitor-down; }
     Mod+Ctrl+Up    { focus-monitor-up; }
@@ -226,7 +234,7 @@ binds {
     Mod+Ctrl+K     { focus-monitor-up; }
     Mod+Ctrl+L     { focus-monitor-right; }
 
-    // Move to monitor
+    // Move Monitors
     Mod+Shift+Ctrl+Left  { move-column-to-monitor-left; }
     Mod+Shift+Ctrl+Down  { move-column-to-monitor-down; }
     Mod+Shift+Ctrl+Up    { move-column-to-monitor-up; }
@@ -248,27 +256,27 @@ binds {
     Mod+Ctrl+Shift+Page_Down { move-workspace-down; }
     Mod+Ctrl+Shift+Page_Up   { move-workspace-up; }
 
-    // Workspace by number
-    Mod+1 { focus-workspace "1"; }
-    Mod+2 { focus-workspace "2"; }
-    Mod+3 { focus-workspace "3"; }
-    Mod+4 { focus-workspace "4"; }
-    Mod+5 { focus-workspace "5"; }
-    Mod+6 { focus-workspace "6"; }
-    Mod+7 { focus-workspace "7"; }
-    Mod+8 { focus-workspace "8"; }
-    Mod+9 { focus-workspace "9"; }
-    Mod+Shift+1 { move-column-to-workspace "1"; }
-    Mod+Shift+2 { move-column-to-workspace "2"; }
-    Mod+Shift+3 { move-column-to-workspace "3"; }
-    Mod+Shift+4 { move-column-to-workspace "4"; }
-    Mod+Shift+5 { move-column-to-workspace "5"; }
-    Mod+Shift+6 { move-column-to-workspace "6"; }
-    Mod+Shift+7 { move-column-to-workspace "7"; }
-    Mod+Shift+8 { move-column-to-workspace "8"; }
-    Mod+Shift+9 { move-column-to-workspace "9"; }
+    // Workspace Numbers
+    Mod+1 hotkey-overlay-title="Workspace: dev"   { focus-workspace "dev"; }
+    Mod+2 hotkey-overlay-title="Workspace: web"   { focus-workspace "web"; }
+    Mod+3 hotkey-overlay-title="Workspace: chat"  { focus-workspace "chat"; }
+    Mod+4 hotkey-overlay-title="Workspace: media" { focus-workspace "media"; }
+    Mod+5 hotkey-overlay-title="Workspace: game"  { focus-workspace "game"; }
+    Mod+6 hotkey-overlay-title="Workspace: 6" { focus-workspace 6; }
+    Mod+7 hotkey-overlay-title="Workspace: 7" { focus-workspace 7; }
+    Mod+8 hotkey-overlay-title="Workspace: 8" { focus-workspace 8; }
+    Mod+9 hotkey-overlay-title="Workspace: 9" { focus-workspace 9; }
+    Mod+Shift+1 { move-column-to-workspace "dev"; }
+    Mod+Shift+2 { move-column-to-workspace "web"; }
+    Mod+Shift+3 { move-column-to-workspace "chat"; }
+    Mod+Shift+4 { move-column-to-workspace "media"; }
+    Mod+Shift+5 { move-column-to-workspace "game"; }
+    Mod+Shift+6 { move-column-to-workspace 6; }
+    Mod+Shift+7 { move-column-to-workspace 7; }
+    Mod+Shift+8 { move-column-to-workspace 8; }
+    Mod+Shift+9 { move-column-to-workspace 9; }
 
-    // Scroll binds
+    // Scroll
     Mod+WheelScrollDown      cooldown-ms=150 { focus-workspace-down; }
     Mod+WheelScrollUp        cooldown-ms=150 { focus-workspace-up; }
     Mod+Ctrl+WheelScrollDown cooldown-ms=150 { move-column-to-workspace-down; }
@@ -282,7 +290,7 @@ binds {
     Mod+Ctrl+Shift+WheelScrollDown { move-column-right; }
     Mod+Ctrl+Shift+WheelScrollUp   { move-column-left; }
 
-    // Consume / expel
+    // Consume
     Mod+BracketLeft  { consume-or-expel-window-left; }
     Mod+BracketRight { consume-or-expel-window-right; }
     Mod+Comma  { consume-window-into-column; }
